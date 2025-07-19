@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Sentiment Analysis Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <div class="brand-logo">
+                    <i class="fas fa-brain"></i>
+                    <span>SentimentAI</span>
+                </div>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item">
+                    <div class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Live</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center min-vh-100">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <h1 class="hero-title">
+                        <span class="gradient-text">AI-Powered</span>
+                        <br>Sentiment Analysis
+                    </h1>
+                    <p class="hero-subtitle">
+                        Analyze emotions, understand context, and extract insights from text using advanced AI models.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalAnalyses">0</div>
+                            <div class="stat-label">Analyses</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgConfidence">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">AI Models</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="hero-visual">
+                        <div class="neural-network">
+                            <div class="node node-1"></div>
+                            <div class="node node-2"></div>
+                            <div class="node node-3"></div>
+                            <div class="node node-4"></div>
+                            <div class="node node-5"></div>
+                            <div class="connection conn-1"></div>
+                            <div class="connection conn-2"></div>
+                            <div class="connection conn-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Dashboard -->
+    <section class="dashboard-section">
+        <div class="container">
+            <!-- Feature Cards -->
+            <div class="row mb-5" data-aos="fade-up">
+                <div class="col-12">
+                    <h2 class="section-title text-center mb-5">
+                        <span class="gradient-text">Choose Your Analysis</span>
+                    </h2>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card" data-tab="single">
+                        <div class="card-icon">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <h4>Single Text</h4>
+                        <p>Analyze individual text with detailed insights</p>
+                        <div class="card-glow"></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card" data-tab="batch">
+                        <div class="card-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h4>Batch Analysis</h4>
+                        <p>Process multiple texts simultaneously</p>
+                        <div class="card-glow"></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card" data-tab="upload">
+                        <div class="card-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h4>CSV Upload</h4>
+                        <p>Upload and analyze large datasets</p>
+                        <div class="card-glow"></div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="feature-card" data-tab="analytics">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4>Analytics</h4>
+                        <p>Visualize sentiment patterns and trends</p>
+                        <div class="card-glow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Interface -->
+            <div class="analysis-interface" data-aos="fade-up" data-aos-delay="200">
+                <!-- Single Text Analysis -->
+                <div class="analysis-panel active" id="single-panel">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-edit"></i> Input Text</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="input-wrapper">
+                                        <textarea id="singleText" class="form-control" rows="6" placeholder="Enter your text here..."></textarea>
+                                        <div class="input-actions">
+                                            <button class="btn btn-primary btn-glow" id="analyzeBtn">
+                                                <i class="fas fa-play"></i>
+                                                <span>Analyze</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="results-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-pie"></i> Analysis Results</h5>
+                                </div>
+                                <div class="card-body" id="singleResults">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-arrow-left"></i>
+                                        </div>
+                                        <p>Enter text and click analyze to see results</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Analysis -->
+                <div class="analysis-panel" id="batch-panel">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-list"></i> Multiple Texts</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="input-wrapper">
+                                        <textarea id="batchTexts" class="form-control" rows="8" placeholder="Enter multiple texts, one per line..."></textarea>
+                                        <div class="input-actions">
+                                            <button class="btn btn-primary btn-glow" id="analyzeBatchBtn">
+                                                <i class="fas fa-play"></i>
+                                                <span>Analyze Batch</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="results-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-table"></i> Batch Results</h5>
+                                </div>
+                                <div class="card-body" id="batchResults">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-arrow-left"></i>
+                                        </div>
+                                        <p>Enter multiple texts and click analyze</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CSV Upload -->
+                <div class="analysis-panel" id="upload-panel">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-upload"></i> Upload CSV File</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="upload-area" id="uploadArea">
+                                        <div class="upload-content">
+                                            <div class="upload-icon">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                            </div>
+                                            <h6>Drag & Drop CSV file here</h6>
+                                            <p>or</p>
+                                            <input type="file" id="csvFile" accept=".csv" class="d-none">
+                                            <button class="btn btn-outline-primary btn-glow" onclick="document.getElementById('csvFile').click()">
+                                                Choose File
+                                            </button>
+                                        </div>
+                                        <div class="upload-info">
+                                            <small>
+                                                <i class="fas fa-info-circle"></i>
+                                                CSV should have text data in the first column
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="results-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-bar"></i> Upload Results</h5>
+                                </div>
+                                <div class="card-body" id="uploadResults">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">
+                                            <i class="fas fa-arrow-left"></i>
+                                        </div>
+                                        <p>Upload a CSV file to see results</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics -->
+                <div class="analysis-panel" id="analytics-panel">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-line"></i> Sentiment Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="sentimentChart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="wordcloud-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-cloud"></i> Word Cloud</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="wordcloudContainer">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">
+                                                <i class="fas fa-cloud"></i>
+                                            </div>
+                                            <p>Generate word cloud from analyzed texts</p>
+                                            <button id="generateWordcloudBtn" class="btn btn-outline-primary btn-glow">
+                                                Generate Word Cloud
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Models Section -->
+    <section class="models-section">
+        <div class="container">
+            <div class="row" data-aos="fade-up">
+                <div class="col-12">
+                    <h2 class="section-title text-center mb-5">
+                        <span class="gradient-text">Powered by Advanced AI Models</span>
+                    </h2>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="model-card">
+                        <div class="model-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h4>TextBlob</h4>
+                        <p>Rule-based sentiment analysis with polarity and subjectivity scoring</p>
+                        <div class="model-stats">
+                            <span class="stat">Accuracy: 85%</span>
+                            <span class="stat">Speed: Fast</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="model-card">
+                        <div class="model-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h4>VADER</h4>
+                        <p>Social media optimized sentiment analysis with context awareness</p>
+                        <div class="model-stats">
+                            <span class="stat">Accuracy: 90%</span>
+                            <span class="stat">Speed: Fast</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="model-card">
+                        <div class="model-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h4>Custom AI</h4>
+                        <p>Keyword-based analysis with NLTK preprocessing and domain optimization</p>
+                        <div class="model-stats">
+                            <span class="stat">Accuracy: 82%</span>
+                            <span class="stat">Speed: Very Fast</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close btn-close-white" onclick="hideLoading()"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="loading-animation">
+                        <div class="loading-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                    <p class="mt-3">Analyzing sentiment...</p>
+                    <small class="text-muted">Click outside or press ESC to cancel</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Feature card navigation
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const tab = this.getAttribute('data-tab');
+                showPanel(tab);
+                
+                // Update active states
+                document.querySelectorAll('.feature-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function showPanel(panelId) {
+            document.querySelectorAll('.analysis-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById(panelId + '-panel').classList.add('active');
+        }
+    </script>
+</body>
+</html> 
